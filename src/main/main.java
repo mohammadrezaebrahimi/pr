@@ -1,33 +1,54 @@
 package main;
 import io.FileManager;
 
+import java.awt.EventQueue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class main {
+import javax.swing.SwingUtilities;
 
+public class main {
+	static int[][] paddledImage = null;
 	public static void main(String[] args) throws IOException {
 		///////////////////////GrayScaleImages
 		//FileManager.readLargeFile("E:\\University\\PR\\Lab\\1\\Binary Image Data.txt");
 		//smooth the file
 
 		///////////////////////////Binary Images//////////////////////
+		
+		SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+            	UserInterface ex = new UserInterface();
+            	ex.initUI();
+               
+            }
+        });
+		
+		
 		int[][] image = FileManager.readBinaryFiles("src/image9.txt");
-		int[][] paddledImage = paddleImage(image);
+		paddledImage = paddleImage(image);
 		//printBinaryImage(paddledImage);
-		int[][] smoothedImage = smooth(paddledImage);
-		System.out.println("#########Smoothed Image:#######");
-		printBinaryImage(smoothedImage);
+		
+		
+		
+		/*
 		int[][] normalizedImage = normalize(smoothedImage);
 		System.out.println("#########Normalized Image:#######");
 		printBinaryImage(normalizedImage);
 		System.out.println("The center of gravity for this pattern is: X=" + CalculateXCenter(normalizedImage)+ 
 				", Y=" + CalculateYCenter(normalizedImage));
 		int[][] peeledImage = extractSkeleton(normalizedImage);
-		printBinaryImage(peeledImage);
+		printBinaryImage(peeledImage);*/
 	}
 
+	static void smoothing(){
+		int[][] smoothedImage = smooth(paddledImage);
+		System.out.println("#########Smoothed Image:#######");
+		printBinaryImage(smoothedImage);
+		
+	}
 	///////////////////////BinaryImageUtilities///////////////////////
 	private static int[][] paddleImage(int[][]image){
 		int newRow = image.length+2;
