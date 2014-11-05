@@ -28,39 +28,47 @@ public class UserInterface extends JFrame {
 		
 		/// area in winfow where we will pace the child components
 		final JFrame frame = new JFrame(); 
-		final JPanel panel = new JPanel(new FlowLayout());
+		final JPanel panel = new JPanel();
 		
-	
+		frame.setTitle("Digit Recognition System");
 		frame.setSize(WINDOW_HEIGHT,WINDOW_WIDTH);
 	//	frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		 frame.setVisible(true);
-		Container pane = frame.getContentPane();
+		frame.setVisible(true);
+		final Container pane = frame.getContentPane();
 		// layout manager g1 which provides methods to manage child components
 		// GroupLayout g1 = new GroupLayout(pane);
 		
 		
 		pane.setLayout(null);
 		
-		panel.setLayout(new FlowLayout());
+		//panel.setLayout(new FlowLayout());
 		
 		pane.add(panel,BorderLayout.NORTH);
 		//add a button
-		 appButton = new JButton("Start Smoothing");
-		appButton.setBounds((WINDOW_WIDTH - 950), (WINDOW_HEIGHT - 350), BUTTON_LENGTH, BUTTON_HEIGHT);
+		 appButton = new JButton("Start");
+		appButton.setBounds((WINDOW_WIDTH - 950), (WINDOW_HEIGHT - 850), BUTTON_LENGTH, BUTTON_HEIGHT);
 		
 		 openButton = new JButton("Open");
-		openButton.setBounds((WINDOW_WIDTH - 950), (WINDOW_HEIGHT - 450), BUTTON_LENGTH, BUTTON_HEIGHT);
+		openButton.setBounds((WINDOW_WIDTH - 950), (WINDOW_HEIGHT - 950), BUTTON_LENGTH, BUTTON_HEIGHT);
 		
 		pane.add(appButton);
 		
 		pane.add(openButton);
+		
+		JLabel j2 = new JLabel("INPUT");
+		//input label
+		pane.add(j2);
+		j2.setBounds((WINDOW_WIDTH - 750), (WINDOW_HEIGHT - 950), 75, 25);
+		
 		appButton.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-
+				JButton j = new JButton();
+				pane.add(j);
+				j.setBounds(0, 0, 40, 70);
 				main_obj.smoothing();
 			}
 		});
@@ -102,11 +110,11 @@ public class UserInterface extends JFrame {
 		               // label.setIcon(image);
 		               if(image!=null){
 		            	   
-		            	   panel.add(new JLabel("Input is inout outgrhmfirmfjfdlfs",image,
-		            			   JLabel.CENTER));
-		            	   JButton j = new JButton("Hello There");
-		            	   j.setBounds((WINDOW_WIDTH - 950), (WINDOW_HEIGHT - 150), BUTTON_LENGTH, BUTTON_HEIGHT);
-		            	   panel.add(j);
+		            	   ImageIcon icon = new ImageIcon(file.getAbsolutePath());
+		            	   JLabel j1 = new JLabel(icon);
+		            	   //image
+		            	   pane.add(j1);
+		            	   j1.setBounds((WINDOW_WIDTH - 700), (WINDOW_HEIGHT - 950), 100, 85);
 		               }
 		               else
 		            	   System.out.println("No image found");
@@ -115,14 +123,13 @@ public class UserInterface extends JFrame {
 		            } else {
 		            	
 		            }
-		            panel.validate();
-		            panel.repaint();
+		            
 		            
 		         
 			}
 			}
 		});
-        pane.add(panel,BorderLayout.NORTH);
+       
         
 	}
 	
