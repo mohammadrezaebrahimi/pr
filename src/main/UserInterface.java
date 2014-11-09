@@ -1,5 +1,7 @@
 package main;
 
+import io.ImageManager;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -12,11 +14,14 @@ import javax.swing.*;
 
 import java.awt.event.*;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 public class UserInterface extends JFrame {
 	
 	final int WINDOW_HEIGHT = 1000, WINDOW_WIDTH = 1000, BUTTON_LENGTH = 95, BUTTON_HEIGHT = 20;
-	JButton openButton = null ,appButton = null;
+	JButton openButton = null ,appButton = null , MNISTButton=null;
 	static private final String newline = "\n";
 	main main_obj = new main();
 	ImageIcon image = null;
@@ -53,10 +58,15 @@ public class UserInterface extends JFrame {
 		 openButton = new JButton("Open");
 		openButton.setBounds((WINDOW_WIDTH - 950), (WINDOW_HEIGHT - 950), BUTTON_LENGTH, BUTTON_HEIGHT);
 		
+		MNISTButton = new JButton("INPUT MNIST IMAGE");
+		MNISTButton.setBounds((WINDOW_WIDTH - 950), (WINDOW_HEIGHT - 750), BUTTON_LENGTH+100, BUTTON_HEIGHT);
+		
 		pane.add(appButton);
 		
 		pane.add(openButton);
 		
+		pane.add(MNISTButton);
+		//startMNISTreaderingProcess
 		JLabel j2 = new JLabel("INPUT");
 		//input label
 		pane.add(j2);
@@ -69,7 +79,30 @@ public class UserInterface extends JFrame {
 				JButton j = new JButton();
 				pane.add(j);
 				j.setBounds(0, 0, 40, 70);
-				main_obj.smoothing();
+				try {
+					main_obj.smoothing();
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+		
+		MNISTButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				ImageManager im = new ImageManager();
+				try {
+					im.startMNISTreaderingProcess();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		});
 		

@@ -1,15 +1,27 @@
 package main;
+
 import io.FileManager;
 
 import java.awt.EventQueue;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.SwingUtilities;
 
 public class main {
-	static int[][] paddledImage = null;
+	
+	
+	static int[][] paddledImage = null , smoothedImage =null , peeledImage = null , normalizedImage =null;
+	
 	public static void main(String[] args) throws IOException {
 		///////////////////////GrayScaleImages
 		//FileManager.readLargeFile("E:\\University\\PR\\Lab\\1\\Binary Image Data.txt");
@@ -22,33 +34,77 @@ public class main {
             public void run() {
             	UserInterface ex = new UserInterface();
             	ex.initUI();
-               
             }
         });
-		
-		
-		int[][] image = FileManager.readBinaryFiles("src/image9.txt");
-		paddledImage = paddleImage(image);
 		//printBinaryImage(paddledImage);
-		
-		
-		
 		/*
-		int[][] normalizedImage = normalize(smoothedImage);
-		System.out.println("#########Normalized Image:#######");
-		printBinaryImage(normalizedImage);
 		System.out.println("The center of gravity for this pattern is: X=" + CalculateXCenter(normalizedImage)+ 
 				", Y=" + CalculateYCenter(normalizedImage));
 		int[][] peeledImage = extractSkeleton(normalizedImage);
 		printBinaryImage(peeledImage);*/
 	}
 
-	static void smoothing(){
-		int[][] smoothedImage = smooth(paddledImage);
-		System.out.println("#########Smoothed Image:#######");
-		printBinaryImage(smoothedImage);
+
+	public static void getInputFilePath(String path) throws IOException {
+		int[][] image = FileManager.readBinaryFiles(path);
+		paddledImage = paddleImage(image);
 		
 	}
+
+	public static int[][] skeletonization(int[][] outputMatrix) throws IOException{
+		
+		peeledImage = extractSkeleton(outputMatrix);
+		BinaryImageToFile bitf = new BinaryImageToFile();
+		bitf.writetoFile(normalizedImage,"SKELETONIZED IMAGE.txt");
+		String name = "SKELETONIZED IMAGE.txt";
+		fileImage(name);
+		
+		System.out.println("#########SKELETONIZED Image:#######");
+		printBinaryImage(peeledImage);
+		return peeledImage;
+	}
+	
+	
+	public static int[][] normalization(int[][] outputMatrix) throws IOException{
+		
+		normalizedImage = normalize(outputMatrix);
+		
+		BinaryImageToFile bitf = new BinaryImageToFile();
+		bitf.writetoFile(normalizedImage,"NORMALIZED IMAGE.txt");
+		String name = "NORMALIZED IMAGE.txt";
+		fileImage(name);
+		System.out.println("#########Normalized Image:#######");
+		printBinaryImage(normalizedImage);
+		return normalizedImage;
+		
+	}
+
+	public static int[][] smoothing() throws IOException{
+		 smoothedImage = smooth(paddledImage);
+		BinaryImageToFile bitf = new BinaryImageToFile();
+		bitf.writetoFile(smoothedImage,"SMOOTHED IMAGE.txt");
+		String name = "SMOOTHED IMAGE.txt";
+		fileImage(name);
+		System.out.println("#########Smoothed Image:#######");
+		printBinaryImage(smoothedImage);
+		return smoothedImage;
+		
+	}
+	private static void fileImage(String name) throws IOException {
+
+		int h = 0, w = 0;
+        BufferedReader br1 = new BufferedReader(new InputStreamReader(new DataInputStream(new FileInputStream(name))));
+        //calculate dimension of the binary input image file
+        w = br1.readLine().length();
+        h++;
+        while (br1.readLine() != null) {
+            h++;
+        }
+        BinaryToImage obj1 = new BinaryToImage(w, h, name);
+        obj1.convertToImage(obj1);
+	}
+
+
 	///////////////////////BinaryImageUtilities///////////////////////
 	private static int[][] paddleImage(int[][]image){
 		int newRow = image.length+2;
@@ -64,7 +120,6 @@ public class main {
 					newImage[i][j] = image[i-1][j-1];
 			}			
 		}
-		
 		return newImage;
 	}
 	
@@ -136,7 +191,6 @@ public class main {
 			int[][] neighbors = getNeighborsinBinaryImage(Result2, i, j);
 
 			//Do the actual smoothing within the mask
-							
 			boolean a = (neighbors[0][0]==1)? true:false;
 			boolean b = (neighbors[0][1]==1)? true:false;
 			boolean c = (neighbors[0][2]==1)? true:false;
@@ -163,7 +217,6 @@ public class main {
 				int[][] neighbors = getNeighborsinBinaryImage(Result3, i, j);
 
 				//Do the actual smoothing within the mask
-								
 				boolean a = (neighbors[0][0]==1)? true:false;
 				boolean b = (neighbors[0][1]==1)? true:false;
 				boolean c = (neighbors[0][2]==1)? true:false;
@@ -526,4 +579,70 @@ public class main {
 			}
 		return sum;
 	}
+	
+	
+	// slant correction 
+	public static int[][] slant_calculation(int[][] matrix, int r, int c) throws IOException {
+        int B1 = 0;
+        
+        int B2 = start_point_image(matrix, r, c);
+        int B3 = last_point_image(matrix, r, c);
+        int B4 = r - 1;
+        double A = B3 - B2;
+        double B = (B4 + B1 - B3 - B2) / 2;
+        double theta = Math.atan((B / A));
+        int[][] slant_matrix = slant_operation(matrix, r, c, theta);
+        
+        BinaryImageToFile bitf = new BinaryImageToFile();
+		bitf.writetoFile(slant_matrix,"SLANT CORRECTED IMAGE.txt");
+		String name = "SLANT CORRECTED IMAGE.txt";
+		fileImage(name);
+		
+		System.out.println("#########SLANT CORRECTED Image:#######");
+		
+		printBinaryImage(slant_matrix);
+		
+        return slant_matrix;
+        
+    }
+    
+    public static int start_point_image(int[][] matrix, int r, int c) {
+        for (int i = r - 1; i >= 0; --i) {
+            for (int j = 0; j < c; j++) {
+                if (matrix[i][j] == 1) {
+                    return ((r - 1) - i);
+                }
+            }
+        }
+        return 0;
+    }
+    
+    public static int last_point_image(int[][] matrix, int r, int c) {
+        int last = 0;
+        for (int i = r - 1; i >= 0; --i) {
+            for (int j = 0; j < c; j++) {
+                if (matrix[i][j] == 1) {
+                    last = i;
+                    break;
+                }
+            }
+        }
+        return ((r - 1) - last);
+    }
+    
+    public static int[][] slant_operation(int[][] matrix, int r, int c,
+                                          double theta) {
+        int[][] slant_matrix = new int[r][c];
+        for (int x = 0; x < r; x++) {
+            for (int y = 0; y < c; y++) {
+                if (matrix[x][y] == 1) {
+                    int new_x = (int) (x - y * Math.tan(theta));
+                    slant_matrix[new_x][y] = 1;
+                }
+                
+            }
+        }
+        return slant_matrix;
+    }
+
 }
